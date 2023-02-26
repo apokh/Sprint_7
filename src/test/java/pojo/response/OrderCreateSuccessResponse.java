@@ -1,4 +1,4 @@
-package POJO;
+package pojo.response;
 
 public class OrderCreateSuccessResponse {
     private String track;
@@ -7,7 +7,8 @@ public class OrderCreateSuccessResponse {
         this.track = track;
     }
 
-    public OrderCreateSuccessResponse(){}
+    public OrderCreateSuccessResponse() {
+    }
 
     public String getTrack() {
         return track;

@@ -1,4 +1,4 @@
-package POJO;
+package pojo.response;
 
 public class OrderGetByNumberResponse {
     private OrderExtendedInfoByNumber order;
@@ -7,7 +7,8 @@ public class OrderGetByNumberResponse {
         this.order = order;
     }
 
-    public OrderGetByNumberResponse(){}
+    public OrderGetByNumberResponse() {
+    }
 
     public OrderExtendedInfoByNumber getOrder() {
         return order;

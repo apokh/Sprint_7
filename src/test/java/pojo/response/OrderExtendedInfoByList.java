@@ -1,4 +1,6 @@
-package POJO;
+package pojo.response;
+
+import pojo.request.OrderBase;
 
 public class OrderExtendedInfoByList extends OrderBase {
     private Long id;

@@ -1,5 +1,3 @@
-import POJO.OrderBase;
-import api.BaseSteps;
 import io.qameta.allure.Description;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
@@ -7,9 +5,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import static org.apache.http.HttpStatus.*;
+
+import api.StepsOrder;
+import pojo.request.OrderBase;
+
 @RunWith(Parameterized.class)
 public class OrderCreateTest {
-    private final BaseSteps steps;
+    private final StepsOrder steps;
     private final String firstName;
     private final String lastName;
     private final String address;
@@ -23,7 +26,7 @@ public class OrderCreateTest {
     private final String expectedElement;
 
     public OrderCreateTest(String firstName, String lastName, String address, String metroStation, String phone, Integer rentTime, String deliveryDate, String comment, String[] color, int expectedStatusCode, String expectedElement) {
-        this.steps = new BaseSteps();
+        this.steps = new StepsOrder();
         this.firstName = firstName;
         this.lastName = lastName;
         this.address = address;
@@ -46,11 +49,11 @@ public class OrderCreateTest {
         String[] NOPE = new String[]{};
 
         return new Object[][]{
-                {"Naruto", "Uzumaki", "Konoha, 142 apt.", "Konoha Haltestelle", "+7 800 355 35 35", 5, "2020-06-06", "Sasuke, come back to Konoha", BLACK, 201, "track"},
-                {"Naruto", "Uzumaki", "Konoha, 142 apt.", "Konoha Haltestelle", "+7 800 355 35 35", 5, "2020-06-06", "Sasuke, come back to Konoha", GREY, 201, "track"},
-                {"Naruto", "Uzumaki", "Konoha, 142 apt.", "Konoha Haltestelle", "+7 800 355 35 35", 5, "2020-06-06", "Sasuke, come back to Konoha", TWO, 201, "track"},
-                {"Naruto", "Uzumaki", "Konoha, 142 apt.", "Konoha Haltestelle", "+7 800 355 35 35", 5, "2020-06-06", "Sasuke, come back to Konoha", null, 201, "track"},
-                {"Naruto", "Uzumaki", "Konoha, 142 apt.", "Konoha Haltestelle", "+7 800 355 35 35", 5, "2020-06-06", "Sasuke, come back to Konoha", NOPE, 201, "track"}
+                {"Naruto", "Uzumaki", "Konoha, 142 apt.", "Konoha Haltestelle", "+7 800 355 35 35", 5, "2020-06-06", "Sasuke, come back to Konoha", BLACK, SC_CREATED, "track"},
+                {"Naruto", "Uzumaki", "Konoha, 142 apt.", "Konoha Haltestelle", "+7 800 355 35 35", 5, "2020-06-06", "Sasuke, come back to Konoha", GREY, SC_CREATED, "track"},
+                {"Naruto", "Uzumaki", "Konoha, 142 apt.", "Konoha Haltestelle", "+7 800 355 35 35", 5, "2020-06-06", "Sasuke, come back to Konoha", TWO, SC_CREATED, "track"},
+                {"Naruto", "Uzumaki", "Konoha, 142 apt.", "Konoha Haltestelle", "+7 800 355 35 35", 5, "2020-06-06", "Sasuke, come back to Konoha", null, SC_CREATED, "track"},
+                {"Naruto", "Uzumaki", "Konoha, 142 apt.", "Konoha Haltestelle", "+7 800 355 35 35", 5, "2020-06-06", "Sasuke, come back to Konoha", NOPE, SC_CREATED, "track"}
         };
     }
 

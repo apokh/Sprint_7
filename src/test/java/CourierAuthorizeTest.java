@@ -1,35 +1,38 @@
 import io.qameta.allure.Description;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
-import api.BaseSteps;
-import POJO.CourierToCreate;
+
+import static org.apache.http.HttpStatus.*;
+
+import api.StepsCourier;
+import pojo.request.CourierToCreate;
 
 public class CourierAuthorizeTest {
-    public BaseSteps steps = new BaseSteps();
+    public StepsCourier steps = new StepsCourier();
+    public CourierToCreate courier = steps.prepareSimpleCourierDataToCreate();
+
+    @Before
+    public void prepareCourier() {
+        steps.sendPostRequestCreateCourier(courier);
+    }
 
     @Test
     @DisplayName("Запрос на авторизацию курьером (успешный) - код ответа: 200")
     @Description(" - курьер может авторизоваться \n - курьера можно создать \n - код ответа: 200")
     public void loginCourierTestStatusCode() {
-        CourierToCreate courier = steps.prepareSimpleCourierDataToCreate();
-        steps.sendPostRequestCreateCourier(courier);
         Response response = steps.sendPostLoginAsCourier(courier);
-        steps.checkStatusCode(response, 200);
-
-        steps.sendDeleteRequestToDeleteCourier(courier);
+        steps.checkStatusCode(response, SC_OK);
     }
 
     @Test
     @DisplayName("Запрос на авторизацию курьером (успешный) - в теле ответа непустой id")
     @Description(" - успешный запрос возвращает id")
     public void loginCourierTestSuccessfullyBodyHasId() {
-        CourierToCreate courier = steps.prepareSimpleCourierDataToCreate();
-        steps.sendPostRequestCreateCourier(courier);
         Response response = steps.sendPostLoginAsCourier(courier);
         steps.checkElementNotNullValue(response, "id");
-
-        steps.sendDeleteRequestToDeleteCourier(courier);
     }
 
     @Test
@@ -38,14 +41,9 @@ public class CourierAuthorizeTest {
             " - если какого-то поля нет - запрос возвращает ошибку \n" +
             " - код ответа: 400")
     public void loginCourierTestFailureBadRequestLoginIsNullStatusCode() {
-        CourierToCreate courier = steps.prepareSimpleCourierDataToCreate();
-        steps.sendPostRequestCreateCourier(courier);
-        String loginSaved = steps.courierLoginSaveAndSetNew(courier, null);
+        steps.setNewLogin(courier, null);
         Response response = steps.sendPostLoginAsCourier(courier);
-        steps.checkStatusCode(response, 400);
-
-        courier.setLogin(loginSaved);
-        steps.sendDeleteRequestToDeleteCourier(courier);
+        steps.checkStatusCode(response, SC_BAD_REQUEST);
     }
 
     @Test
@@ -54,14 +52,9 @@ public class CourierAuthorizeTest {
             " - если какого-то поля нет - запрос возвращает ошибку \n" +
             " - message: \"Недостаточно данных для входа\"")
     public void loginCourierTestFailureBadRequestLoginIsNullMessage() {
-        CourierToCreate courier = steps.prepareSimpleCourierDataToCreate();
-        steps.sendPostRequestCreateCourier(courier);
-        String loginSaved = steps.courierLoginSaveAndSetNew(courier, null);
+        steps.setNewLogin(courier, null);
         Response response = steps.sendPostLoginAsCourier(courier);
         steps.checkElementEqualTo(response, "message", "Недостаточно данных для входа");
-
-        courier.setLogin(loginSaved);
-        steps.sendDeleteRequestToDeleteCourier(courier);
     }
 
     @Test
@@ -70,14 +63,9 @@ public class CourierAuthorizeTest {
             " - если какого-то поля нет - запрос возвращает ошибку \n" +
             " - код ответа: 400")
     public void loginCourierTestFailureBadRequestLoginIsEmptyStatusCode() {
-        CourierToCreate courier = steps.prepareSimpleCourierDataToCreate();
-        steps.sendPostRequestCreateCourier(courier);
-        String loginSaved = steps.courierLoginSaveAndSetNew(courier, "");
+        steps.setNewLogin(courier, "");
         Response response = steps.sendPostLoginAsCourier(courier);
-        steps.checkStatusCode(response, 400);
-
-        courier.setLogin(loginSaved);
-        steps.sendDeleteRequestToDeleteCourier(courier);
+        steps.checkStatusCode(response, SC_BAD_REQUEST);
     }
 
     @Test
@@ -86,14 +74,9 @@ public class CourierAuthorizeTest {
             " - если какого-то поля нет - запрос возвращает ошибку \n" +
             " - message: \"Недостаточно данных для входа\"")
     public void loginCourierTestFailureBadRequestLoginIsEmptyMessage() {
-        CourierToCreate courier = steps.prepareSimpleCourierDataToCreate();
-        steps.sendPostRequestCreateCourier(courier);
-        String loginSaved = steps.courierLoginSaveAndSetNew(courier, "");
+        steps.setNewLogin(courier, "");
         Response response = steps.sendPostLoginAsCourier(courier);
         steps.checkElementEqualTo(response, "message", "Недостаточно данных для входа");
-
-        courier.setLogin(loginSaved);
-        steps.sendDeleteRequestToDeleteCourier(courier);
     }
 
 //    тесты и сразу выполнялись с трудом, а позже и вовсе стали зависать, так отчёт не собрать, поэтому закомменчено
@@ -102,28 +85,18 @@ public class CourierAuthorizeTest {
 //    @DisplayName("Запрос на авторизацию курьером (провальный) - password: null - код ответа: 400")
 //    @Description(" - для авторизации нужно передать все обязательные поля \n - если какого-то поля нет - запрос возвращает ошибку \n - код ответа: 400")
 //    public void loginCourierTestFailureBadRequestPasswordIsNullStatusCode() {
-//        CourierToCreate courier = steps.prepareSimpleCourierDataToCreate();
-//        steps.sendPostRequestCreateCourier(courier);
-//        String passwordSaved = steps.courierPasswordSaveAndSetNew(courier, null);
+//        steps.setNewPassword(courier, null);
 //        Response response = steps.sendPostLoginAsCourier(courier);
-//        steps.checkStatusCode(response, 400);
-//
-//        courier.setLogin(passwordSaved);
-//        steps.sendDeleteRequestToDeleteCourier(courier);
+//        steps.checkStatusCode(response, SC_BAD_REQUEST);
 //    }
 
 //    @Test
 //    @DisplayName("Запрос на авторизацию курьером (провальный) - password: null - message")
 //    @Description(" - для авторизации нужно передать все обязательные поля \n - если какого-то поля нет - запрос возвращает ошибку \n - message: \"Недостаточно данных для входа\"")
 //    public void loginCourierTestFailureBadRequestPasswordIsNullMessage() {
-//        CourierToCreate courier = steps.prepareSimpleCourierDataToCreate();
-//        steps.sendPostRequestCreateCourier(courier);
-//        String passwordSaved = steps.courierPasswordSaveAndSetNew(courier, null);
-//        Response response = steps.sendPostLoginAsCourier(courier);
+//        steps.setNewPassword(courier, null);
+//        Response response = stepsCourier.sendPostLoginAsCourier(courier);
 //        steps.checkElementEqualTo(response, "message", "Недостаточно данных для входа");
-//
-//        courier.setLogin(passwordSaved);
-//        steps.sendDeleteRequestToDeleteCourier(courier);
 //    }
 
     @Test
@@ -132,14 +105,9 @@ public class CourierAuthorizeTest {
             " - если какого-то поля нет - запрос возвращает ошибку \n" +
             " - код ответа: 400")
     public void loginCourierTestFailureBadRequestPasswordIsEmptyStatusCode() {
-        CourierToCreate courier = steps.prepareSimpleCourierDataToCreate();
-        steps.sendPostRequestCreateCourier(courier);
-        String passwordSaved = steps.courierPasswordSaveAndSetNew(courier, "");
+        steps.setNewPassword(courier, "");
         Response response = steps.sendPostLoginAsCourier(courier);
-        steps.checkStatusCode(response, 400);
-
-        courier.setLogin(passwordSaved);
-        steps.sendDeleteRequestToDeleteCourier(courier);
+        steps.checkStatusCode(response, SC_BAD_REQUEST);
     }
 
     @Test
@@ -148,14 +116,9 @@ public class CourierAuthorizeTest {
             " - если какого-то поля нет - запрос возвращает ошибку \n" +
             " - message: \"Недостаточно данных для входа\"")
     public void loginCourierTestFailureBadRequestPasswordIsEmptyMessage() {
-        CourierToCreate courier = steps.prepareSimpleCourierDataToCreate();
-        steps.sendPostRequestCreateCourier(courier);
-        String passwordSaved = steps.courierPasswordSaveAndSetNew(courier, "");
+        steps.setNewPassword(courier, "");
         Response response = steps.sendPostLoginAsCourier(courier);
         steps.checkElementEqualTo(response, "message", "Недостаточно данных для входа");
-
-        courier.setPassword(passwordSaved);
-        steps.sendDeleteRequestToDeleteCourier(courier);
     }
 
     @Test
@@ -164,14 +127,9 @@ public class CourierAuthorizeTest {
             " - если авторизоваться под несуществующим пользователем, запрос возвращает ошибку \n" +
             " - код ответа: 404")
     public void loginCourierTestFailureBadRequestLoginNotExistStatusCode() {
-        CourierToCreate courier = steps.prepareSpecifyCourierDataToCreate("NinjaFirst", "1234", "Donatello");
-        steps.sendPostRequestCreateCourier(courier);
-        String loginSaved = steps.courierLoginSaveAndSetNew(courier, "NinzyaFirst");
+        steps.setNewLogin(courier, "NinzyaFirst");
         Response response = steps.sendPostLoginAsCourier(courier);
-        steps.checkStatusCode(response, 404);
-
-        courier.setLogin(loginSaved);
-        steps.sendDeleteRequestToDeleteCourier(courier);
+        steps.checkStatusCode(response, SC_NOT_FOUND);
     }
 
     @Test
@@ -180,14 +138,9 @@ public class CourierAuthorizeTest {
             " - если авторизоваться под несуществующим пользователем, запрос возвращает ошибку \n" +
             " - message: \"Учетная запись не найдена\"")
     public void loginCourierTestFailureBadRequestLoginNotExistMessage() {
-        CourierToCreate courier = steps.prepareSpecifyCourierDataToCreate("NinjaFirst", "1234", "Donatello");
-        steps.sendPostRequestCreateCourier(courier);
-        String loginSaved = steps.courierLoginSaveAndSetNew(courier, "NinzyaFirst");
+        steps.setNewLogin(courier, "NinzyaFirst");
         Response response = steps.sendPostLoginAsCourier(courier);
         steps.checkElementEqualTo(response, "message", "Учетная запись не найдена");
-
-        courier.setLogin(loginSaved);
-        steps.sendDeleteRequestToDeleteCourier(courier);
     }
 
     @Test
@@ -195,14 +148,9 @@ public class CourierAuthorizeTest {
     @Description(" - система вернёт ошибку, если неправильно указать логин или пароль \n" +
             " - код ответа: 404")
     public void loginCourierTestFailureBadRequestPasswordIsFalseStatusCode() {
-        CourierToCreate courier = steps.prepareSpecifyCourierDataToCreate("NinjaFirst", "1234", "Donatello");
-        steps.sendPostRequestCreateCourier(courier);
-        String passwordSaved = steps.courierPasswordSaveAndSetNew(courier, "12345");
+        steps.setNewPassword(courier, "12345");
         Response response = steps.sendPostLoginAsCourier(courier);
-        steps.checkStatusCode(response, 404);
-
-        courier.setPassword(passwordSaved);
-        steps.sendDeleteRequestToDeleteCourier(courier);
+        steps.checkStatusCode(response, SC_NOT_FOUND);
     }
 
     @Test
@@ -210,13 +158,13 @@ public class CourierAuthorizeTest {
     @Description(" - система вернёт ошибку, если неправильно указать логин или пароль \n" +
             " - message: \"Учетная запись не найдена\"")
     public void loginCourierTestFailureBadRequestPasswordIsFalseMessage() {
-        CourierToCreate courier = steps.prepareSpecifyCourierDataToCreate("NinjaFirst", "1234", "Donatello");
-        steps.sendPostRequestCreateCourier(courier);
-        String passwordSaved = steps.courierPasswordSaveAndSetNew(courier, "12345");
+        steps.setNewPassword(courier, "12345");
         Response response = steps.sendPostLoginAsCourier(courier);
         steps.checkElementEqualTo(response, "message", "Учетная запись не найдена");
+    }
 
-        courier.setPassword(passwordSaved);
+    @After
+    public void clearTestData() {
         steps.sendDeleteRequestToDeleteCourier(courier);
     }
 }

@@ -1,4 +1,3 @@
-import api.BaseSteps;
 import io.qameta.allure.Description;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
@@ -6,15 +5,19 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import static org.apache.http.HttpStatus.*;
+
+import api.StepsOrder;
+
 @RunWith(Parameterized.class)
 public class OrderGetByNumberNegativeTest {
-    private BaseSteps steps;
+    private StepsOrder steps;
     private String track;
     private Integer expectedStatusCode;
     private String expectedMessage;
 
     public OrderGetByNumberNegativeTest(String track, Integer expectedStatusCode, String expectedMessage) {
-        this.steps = new BaseSteps();
+        this.steps = new StepsOrder();
         this.track = track;
         this.expectedStatusCode = expectedStatusCode;
         this.expectedMessage = expectedMessage;
@@ -23,8 +26,8 @@ public class OrderGetByNumberNegativeTest {
     @Parameterized.Parameters
     public static Object[][] getTestData() {
         return new Object[][]{
-                {"1", 404, "Заказ не найден"},
-                {"", 400, "Недостаточно данных для поиска"}
+                {"1", SC_NOT_FOUND, "Заказ не найден"},
+                {"", SC_BAD_REQUEST, "Недостаточно данных для поиска"}
         };
     }
 

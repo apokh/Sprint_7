@@ -1,4 +1,4 @@
-package POJO;
+package pojo.request;
 
 public class CourierToCreate extends CourierBase {
     private String firstName;
@@ -8,7 +8,8 @@ public class CourierToCreate extends CourierBase {
         this.firstName = firstName;
     }
 
-    public CourierToCreate(){}
+    public CourierToCreate() {
+    }
 
     public String getFirstName() {
         return firstName;

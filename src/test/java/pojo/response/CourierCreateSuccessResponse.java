@@ -1,4 +1,4 @@
-package POJO;
+package pojo.response;
 
 public class CourierCreateSuccessResponse {
     private int id;
@@ -6,7 +6,9 @@ public class CourierCreateSuccessResponse {
     public CourierCreateSuccessResponse(int id) {
         this.id = id;
     }
-    public CourierCreateSuccessResponse() {}
+
+    public CourierCreateSuccessResponse() {
+    }
 
     public int getId() {
         return id;

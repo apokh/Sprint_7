@@ -1,4 +1,4 @@
-package POJO;
+package pojo.request;
 
 public abstract class CourierBase {
     private String login;
@@ -9,7 +9,8 @@ public abstract class CourierBase {
         this.password = password;
     }
 
-    public CourierBase(){}
+    public CourierBase() {
+    }
 
     public String getLogin() {
         return login;

@@ -1,4 +1,4 @@
-package POJO;
+package pojo.response;
 
 public class OrderPageInfo {
     private Integer page;

@@ -1,4 +1,4 @@
-package POJO;
+package pojo.response;
 
 public class OrderGetListResponse {
     private OrderExtendedInfoByList[] orders;
@@ -11,7 +11,8 @@ public class OrderGetListResponse {
         this.availableStations = availableStations;
     }
 
-    public OrderGetListResponse(){}
+    public OrderGetListResponse() {
+    }
 
     public OrderExtendedInfoByList[] getOrders() {
         return orders;

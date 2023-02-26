@@ -1,45 +1,41 @@
 import io.qameta.allure.Description;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
+import org.junit.After;
 import org.junit.Test;
-import api.BaseSteps;
-import POJO.CourierToCreate;
+
+import static org.apache.http.HttpStatus.*;
+
+import api.StepsCourier;
+import pojo.request.CourierToCreate;
 
 public class CourierCreateTest {
-    public BaseSteps steps = new BaseSteps();
+    public StepsCourier steps = new StepsCourier();
+    public CourierToCreate courier = steps.prepareSimpleCourierDataToCreate();
 
     @Test
     @DisplayName("Запрос на создание курьера (успешный) - код ответа: 201")
     @Description(" - запрос возвращает правильный код ответа \n - курьера можно создать")
     public void createCourierTestStatusCode() {
-        CourierToCreate courier = steps.prepareSimpleCourierDataToCreate();
         Response response = steps.sendPostRequestCreateCourier(courier);
-        steps.checkStatusCode(response, 201);
-
-        steps.sendDeleteRequestToDeleteCourier(courier);
+        steps.checkStatusCode(response, SC_CREATED);
     }
 
     @Test
     @DisplayName("Запрос на создание курьера (успешный) - в теле ответа \"ok\": true")
     @Description(" - успешный запрос возвращает ok: true \n - курьера можно создать")
     public void createCourierTestSuccessfullyBodyHasOk() {
-        CourierToCreate courier = steps.prepareSimpleCourierDataToCreate();
         Response response = steps.sendPostRequestCreateCourier(courier);
         steps.checkElementEqualTo(response, "ok", true);
-
-        steps.sendDeleteRequestToDeleteCourier(courier);
     }
 
     @Test
     @DisplayName("Запрос на создание курьера (провальный) - такой курьер уже существует (1:1) - код ответа: 409")
     @Description(" - нельзя создать двух одинаковых курьеров \n - код ответа: 409")
     public void createCourierTestFailureAlreadyExistStatusCode() {
-        CourierToCreate courier = steps.prepareSimpleCourierDataToCreate();
         steps.sendPostRequestCreateCourier(courier);
         Response response = steps.sendPostRequestCreateCourier(courier);
-        steps.checkStatusCode(response, 409);
-
-        steps.sendDeleteRequestToDeleteCourier(courier);
+        steps.checkStatusCode(response, SC_CONFLICT);
     }
 
     @Test
@@ -47,12 +43,9 @@ public class CourierCreateTest {
     @Description(" - нельзя создать двух одинаковых курьеров \n" +
             " - \"message\": \"Этот логин уже используется. Попробуйте другой.\"")
     public void createCourierTestFailureAlreadyExistMessage() {
-        CourierToCreate courier = steps.prepareSimpleCourierDataToCreate();
         steps.sendPostRequestCreateCourier(courier);
         Response response = steps.sendPostRequestCreateCourier(courier);
         steps.checkElementEqualTo(response, "message", "Этот логин уже используется. Попробуйте другой.");
-
-        steps.sendDeleteRequestToDeleteCourier(courier);
     }
 
     @Test
@@ -60,13 +53,12 @@ public class CourierCreateTest {
     @Description(" - если создать пользователя с логином, который уже есть, возвращается ошибка (409) \n" +
             " - код ответа: 409")
     public void createCourierTestFailureLoginAlreadyExistStatusCode() {
-        CourierToCreate courierNinja = steps.prepareSpecifyCourierDataToCreate("Michelangelo", "1234", "Michelangelo Ninja");
-        CourierToCreate courierSculptor = steps.prepareSpecifyCourierDataToCreate("Michelangelo", "12345678", "Michelangelo Buonarroti");
-        steps.sendPostRequestCreateCourier(courierNinja);
+        CourierToCreate courierSculptor = steps.prepareSimpleCourierDataToCreate();
+        steps.setNewPassword(courierSculptor, "12345678");
+        steps.setNewFirstName(courierSculptor, "Michelangelo Buonarroti");
+        steps.sendPostRequestCreateCourier(courier);
         Response response = steps.sendPostRequestCreateCourier(courierSculptor);
-        steps.checkStatusCode(response, 409);
-
-        steps.sendDeleteRequestToDeleteCourier(courierNinja);
+        steps.checkStatusCode(response, SC_CONFLICT);
     }
 
     @Test
@@ -77,7 +69,7 @@ public class CourierCreateTest {
     public void createCourierTestFailureBadRequestLoginIsNullStatusCode() {
         CourierToCreate courier = steps.prepareSpecifyCourierDataToCreate(null, "1234", "Mr. Null");
         Response response = steps.sendPostRequestCreateCourier(courier);
-        steps.checkStatusCode(response, 400);
+        steps.checkStatusCode(response, SC_BAD_REQUEST);
     }
 
     @Test
@@ -88,7 +80,7 @@ public class CourierCreateTest {
     public void createCourierTestFailureBadRequestLoginIsEmptyStatusCode() {
         CourierToCreate courier = steps.prepareSpecifyCourierDataToCreate("", "1234", "Mr. Null");
         Response response = steps.sendPostRequestCreateCourier(courier);
-        steps.checkStatusCode(response, 400);
+        steps.checkStatusCode(response, SC_BAD_REQUEST);
     }
 
     @Test
@@ -99,7 +91,7 @@ public class CourierCreateTest {
     public void createCourierTestFailureBadRequestPasswordIsNullStatusCode() {
         CourierToCreate courier = steps.prepareSpecifyCourierDataToCreate("ninjaFirst", null, "Mr. Null");
         Response response = steps.sendPostRequestCreateCourier(courier);
-        steps.checkStatusCode(response, 400);
+        steps.checkStatusCode(response, SC_BAD_REQUEST);
     }
 
     @Test
@@ -110,7 +102,7 @@ public class CourierCreateTest {
     public void createCourierTestFailureBadRequestPasswordIsEmptyStatusCode() {
         CourierToCreate courier = steps.prepareSpecifyCourierDataToCreate("ninjaFirst", "", "Mr. Null");
         Response response = steps.sendPostRequestCreateCourier(courier);
-        steps.checkStatusCode(response, 400);
+        steps.checkStatusCode(response, SC_BAD_REQUEST);
     }
 
     @Test
@@ -119,11 +111,9 @@ public class CourierCreateTest {
             " - необязательные можно пропустить \n" +
             " - код ответа: 201")
     public void createCourierTestSuccessFirstNameIsNullStatusCode() {
-        CourierToCreate courier = steps.prepareSpecifyCourierDataToCreate("ninjaFirst", "1234", null);
+        steps.setNewFirstName(courier, null);
         Response response = steps.sendPostRequestCreateCourier(courier);
-        steps.checkStatusCode(response, 201);
-
-        steps.sendDeleteRequestToDeleteCourier(courier);
+        steps.checkStatusCode(response, SC_CREATED);
     }
 
     @Test
@@ -132,10 +122,13 @@ public class CourierCreateTest {
             " - необязательные можно пропустить \n" +
             " - код ответа: 201")
     public void createCourierTestSuccessFirstNameIsEmptyStatusCode() {
-        CourierToCreate courier = steps.prepareSpecifyCourierDataToCreate("ninjaFirst", "1234", "");
+        steps.setNewFirstName(courier, "");
         Response response = steps.sendPostRequestCreateCourier(courier);
-        steps.checkStatusCode(response, 201);
+        steps.checkStatusCode(response, SC_CREATED);
+    }
 
+    @After
+    public void clearTestData() {
         steps.sendDeleteRequestToDeleteCourier(courier);
     }
 }

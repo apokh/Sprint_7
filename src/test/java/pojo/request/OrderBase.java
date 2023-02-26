@@ -1,4 +1,4 @@
-package POJO;
+package pojo.request;
 
 public class OrderBase {
     private String firstName;
@@ -23,7 +23,8 @@ public class OrderBase {
         this.color = color;
     }
 
-    public OrderBase(){}
+    public OrderBase() {
+    }
 
     public String getFirstName() {
         return firstName;

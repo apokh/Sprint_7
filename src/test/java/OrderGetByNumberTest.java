@@ -1,12 +1,12 @@
-import POJO.OrderBase;
-import api.BaseSteps;
 import io.qameta.allure.Description;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
 import org.junit.Test;
+import api.StepsOrder;
+import pojo.request.OrderBase;
 
 public class OrderGetByNumberTest {
-    public BaseSteps steps = new BaseSteps();
+    public StepsOrder steps = new StepsOrder();
 
     @Test
     @DisplayName("Запрос на получение заказа по трек-номеру (успешный)")

@@ -1,4 +1,4 @@
-package POJO;
+package pojo.response;
 
 public class OrderStation {
     private String name;
